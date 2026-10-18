@@ -8,7 +8,7 @@ import { MAX_PDF_BYTES, pdfPages } from "@/lib/pdf";
 export const runtime = "nodejs";
 
 async function pdfFrom(form, name, sample) {
-  if (form.get("sample") === "1") return readFile(path.join(process.cwd(), "public", sample));
+  if (form.get("sample")) return readFile(path.join(process.cwd(), "public", sample));
   const file = form.get(name);
   if (!file || typeof file === "string") throw new HttpError(400, "Choose both PDFs: the draft you agreed to and the copy you're asked to sign.");
   if (file.size > MAX_PDF_BYTES) throw new HttpError(413, "That PDF is bigger than 20 MB.");

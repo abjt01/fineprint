@@ -7,7 +7,7 @@ import { MAX_PDF_BYTES } from "@/lib/pdf";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-const SAMPLE = "bengaluru-rent-agreement.pdf";
+const SAMPLES = { rent: "bengaluru-rent-agreement.pdf", job: "sample-offer-letter.pdf", loan: "sample-loan-agreement.pdf" };
 
 export const POST = route(async (req) => {
   rateLimit(req, "check", 12, 10 * 60_000);
@@ -16,9 +16,10 @@ export const POST = route(async (req) => {
   });
   let bytes;
   let name;
-  if (form.get("sample") === "1") {
-    bytes = await readFile(path.join(process.cwd(), "public", SAMPLE));
-    name = SAMPLE;
+  const sample = form.get("sample");
+  if (sample) {
+    name = SAMPLES[sample] || SAMPLES.rent;
+    bytes = await readFile(path.join(process.cwd(), "public", name));
   } else {
     const file = form.get("file");
     if (!file || typeof file === "string") throw new HttpError(400, "Choose the PDF first.");

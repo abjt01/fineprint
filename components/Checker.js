@@ -18,6 +18,12 @@ const STEPS = [
   "Sealing the receipt",
 ];
 
+const SAMPLES = [
+  { id: "rent", name: "Bengaluru rent agreement", short: "rent agreement", file: "/bengaluru-rent-agreement.pdf" },
+  { id: "job", name: "Fresher's offer letter", short: "offer letter", file: "/sample-offer-letter.pdf" },
+  { id: "loan", name: "Personal loan", short: "loan agreement", file: "/sample-loan-agreement.pdf" },
+];
+
 export const PACK_CHOICES = [
   { id: "auto", name: "Work it out" },
   { id: "rent", name: "Rent agreement" },
@@ -49,7 +55,7 @@ export default function Checker() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "That didn't work.");
       saveReceipt(data.receipt);
-      setState({ status: "done", sample: form.get("sample") === "1", ...data });
+      setState({ status: "done", sample: form.get("sample") === "rent", ...data });
       setTimeout(() => results.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     } catch (err) {
       setState({ status: "error", error: err.message });
@@ -65,9 +71,9 @@ export default function Checker() {
     e.target.value = "";
   }
 
-  function sample() {
+  function sample(kind) {
     const form = new FormData();
-    form.append("sample", "1");
+    form.append("sample", kind);
     run(form);
   }
 
@@ -88,14 +94,27 @@ export default function Checker() {
           <button type="button" className="btn primary" disabled={busy} onClick={() => input.current?.click()}>
             Upload a PDF
           </button>
-          <button type="button" className="btn" disabled={busy} onClick={sample}>
-            Try a sample Bengaluru rent agreement
-          </button>
           <input ref={input} type="file" accept="application/pdf,.pdf" hidden onChange={upload} />
         </div>
+        <div className="samples">
+          <span className="small muted">Or try a sample:</span>
+          {SAMPLES.map((s) => (
+            <button key={s.id} type="button" className="chip" disabled={busy} onClick={() => sample(s.id)}>
+              {s.name}
+            </button>
+          ))}
+        </div>
         <p className="small muted">
-          Text PDFs up to 20 MB. The sample is made up (<a href="/bengaluru-rent-agreement.pdf" target="_blank">open it</a>) and has the usual traps
-          left in. Got a draft and a printed copy? <Link href="/compare">Compare them</Link>.
+          Text PDFs up to 20 MB. The samples are made up, with the usual traps left in:{" "}
+          {SAMPLES.map((s, i) => (
+            <span key={s.id}>
+              <a href={s.file} target="_blank">
+                {s.short}
+              </a>
+              {i < SAMPLES.length - 1 ? ", " : "."}
+            </span>
+          ))}{" "}
+          Got a draft and a printed copy? <Link href="/compare">Compare them</Link>.
         </p>
         {busy && (
           <ol className="steps" aria-live="polite">

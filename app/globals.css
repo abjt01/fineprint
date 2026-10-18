@@ -177,6 +177,7 @@ p { margin: 0 0 0.6rem; }
 .chip:hover { border-color: var(--ink); }
 .chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .chip:disabled { opacity: 0.5; cursor: wait; }
+.samples { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 10px; }
 .pack-line { margin: 0; color: var(--muted); }
 .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
 .card-head h2 { margin: 0; }
