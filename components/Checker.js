@@ -154,7 +154,7 @@ function Result({ receipt, pages, doc, pack, alarms, auditRan, sample, anchor })
   return (
     <section className="result" ref={anchor}>
       <p className="pack-line">
-        Read as a <strong>{pack.name.toLowerCase()}</strong>. Not right? Pick the kind above and upload again.
+        Read as: <strong>{pack.name}</strong>. Not right? Pick the kind above and upload again.
       </p>
       <div className="trust">
         <Layer ok={verified.length === found.length} title="1. Found in your PDF" detail={`${verified.length} of ${found.length} quotes found on their page by plain string search${fixed.length ? `, ${fixed.length} after the model was asked again` : ""}.`} />
