@@ -2,21 +2,34 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import Alarms from "./Alarms";
+import AskBox from "./AskBox";
 import Clause from "./Clause";
-import { rupees, saveReceipt } from "./format";
+import { saveReceipt } from "./format";
 
 const STEPS = [
   "Pulling the text out of every page",
+  "Working out what kind of document this is",
   "Reading the clauses that cost you money",
   "Finding every quote in the PDF, in code",
   "Re-asking where a quote didn't match",
   "Second model auditing each answer",
-  "Working out the red flags",
+  "Working out flags and dates",
   "Sealing the receipt",
+];
+
+export const PACK_CHOICES = [
+  { id: "auto", name: "Work it out" },
+  { id: "rent", name: "Rent agreement" },
+  { id: "job", name: "Job offer" },
+  { id: "loan", name: "Loan / EMI" },
+  { id: "insurance", name: "Health insurance" },
+  { id: "general", name: "Any contract / T&C" },
 ];
 
 export default function Checker() {
   const [state, setState] = useState({ status: "idle" });
+  const [pack, setPack] = useState("auto");
   const [step, setStep] = useState(0);
   const input = useRef(null);
   const results = useRef(null);
@@ -24,18 +37,19 @@ export default function Checker() {
   useEffect(() => {
     if (state.status !== "busy") return;
     setStep(0);
-    const t = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 700);
+    const t = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 650);
     return () => clearInterval(t);
   }, [state.status]);
 
   async function run(form) {
+    if (pack !== "auto") form.append("pack", pack);
     setState({ status: "busy" });
     try {
       const res = await fetch("/api/check", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "That didn't work.");
       saveReceipt(data.receipt);
-      setState({ status: "done", ...data });
+      setState({ status: "done", sample: form.get("sample") === "1", ...data });
       setTimeout(() => results.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     } catch (err) {
       setState({ status: "error", error: err.message });
@@ -61,19 +75,27 @@ export default function Checker() {
 
   return (
     <>
-      <section className="drop no-print" aria-busy={busy}>
+      <section className="drop no-print" aria-busy={busy} id="review">
+        <h2>Before you sign</h2>
+        <div className="chips" role="radiogroup" aria-label="Kind of document">
+          {PACK_CHOICES.map((p) => (
+            <button key={p.id} type="button" role="radio" aria-checked={pack === p.id} className={`chip${pack === p.id ? " on" : ""}`} onClick={() => setPack(p.id)}>
+              {p.name}
+            </button>
+          ))}
+        </div>
         <div className="drop-actions">
           <button type="button" className="btn primary" disabled={busy} onClick={() => input.current?.click()}>
-            Upload agreement PDF
+            Upload a PDF
           </button>
           <button type="button" className="btn" disabled={busy} onClick={sample}>
-            Try a sample Bengaluru agreement
+            Try a sample Bengaluru rent agreement
           </button>
           <input ref={input} type="file" accept="application/pdf,.pdf" hidden onChange={upload} />
         </div>
         <p className="small muted">
-          Text PDFs only, up to 20 MB. The sample is made up (<a href="/bengaluru-rent-agreement.pdf" target="_blank">open it</a>) and has the
-          usual traps left in.
+          Text PDFs up to 20 MB. The sample is made up (<a href="/bengaluru-rent-agreement.pdf" target="_blank">open it</a>) and has the usual traps
+          left in. Got a draft and a printed copy? <Link href="/compare">Compare them</Link>.
         </p>
         {busy && (
           <ol className="steps" aria-live="polite">
@@ -87,13 +109,13 @@ export default function Checker() {
         {state.status === "error" && <p className="error">{state.error}</p>}
       </section>
 
-      {state.status === "done" && <Result receipt={state.receipt} pages={state.pages} auditRan={state.auditRan} anchor={results} />}
+      {state.status === "done" && <Result {...state} anchor={results} />}
     </>
   );
 }
 
-function Result({ receipt, pages, auditRan, anchor }) {
-  const { clauses, flags, stake, tee, document: doc } = receipt;
+function Result({ receipt, pages, doc, pack, alarms, auditRan, sample, anchor }) {
+  const { clauses, flags, summary, tee, document: file } = receipt;
   const found = clauses.filter((c) => c.found);
   const verified = found.filter((c) => c.check.status === "verified");
   const fixed = verified.filter((c) => c.tries > 1);
@@ -105,20 +127,23 @@ function Result({ receipt, pages, auditRan, anchor }) {
     const blob = new Blob([JSON.stringify(receipt, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `${doc.name.replace(/\.pdf$/i, "")}.receipt.json`;
+    a.download = `${file.name.replace(/\.pdf$/i, "")}.receipt.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   }
 
   return (
     <section className="result" ref={anchor}>
+      <p className="pack-line">
+        Read as a <strong>{pack.name.toLowerCase()}</strong>. Not right? Pick the kind above and upload again.
+      </p>
       <div className="trust">
         <Layer ok={verified.length === found.length} title="1. Found in your PDF" detail={`${verified.length} of ${found.length} quotes found on their page by plain string search${fixed.length ? `, ${fixed.length} after the model was asked again` : ""}.`} />
         <Layer
           ok={auditRan && !disagree.length}
           warn={!auditRan || disagree.length > 0}
           title="2. Second opinion"
-          detail={auditRan ? (disagree.length ? `A second model disagrees on ${disagree.length}. Look at those yourself.` : `A second model agrees with all ${audited.length} readings.`) : "The auditor didn't answer this time."}
+          detail={auditRan ? (disagree.length ? `A second model disagrees on ${disagree.length}. Look at ${disagree.length === 1 ? "that one" : "those"} yourself.` : `A second model agrees with all ${audited.length} readings.`) : "The auditor didn't answer this time."}
         />
         <Layer
           ok={signed.length > 0 && signed.length === tee.length}
@@ -128,23 +153,15 @@ function Result({ receipt, pages, auditRan, anchor }) {
         />
       </div>
 
-      {stake && (
+      {summary?.length > 0 && (
         <div className="stake">
-          <div>
-            <span className="stake-label">Deposit</span>
-            <span className="stake-num">{rupees(stake.deposit)}</span>
-            <span className="stake-sub">{Number(stake.depositMonths.toFixed(1))} months of rent</span>
-          </div>
-          <div>
-            <span className="stake-label">Fair under the Model Tenancy Act</span>
-            <span className="stake-num">{rupees(stake.fairDeposit)}</span>
-            <span className="stake-sub">two months of rent</span>
-          </div>
-          <div>
-            <span className="stake-label">Cut no matter what</span>
-            <span className="stake-num">{rupees(stake.fixedDeductions)}</span>
-            <span className="stake-sub">{stake.refundDays ? `back after ${stake.refundDays} days` : "no refund date given"}</span>
-          </div>
+          {summary.map((t) => (
+            <div key={t.label}>
+              <span className="stake-label">{t.label}</span>
+              <span className="stake-num">{t.value}</span>
+              <span className="stake-sub">{t.sub}</span>
+            </div>
+          ))}
         </div>
       )}
 
@@ -161,23 +178,27 @@ function Result({ receipt, pages, auditRan, anchor }) {
                     {f.law.act}, Section {f.law.section}. {f.law.note}
                   </p>
                 )}
-                <p className="flag-links">
-                  From:{" "}
-                  {f.keys.map((k) => {
-                    const c = clauses.find((x) => x.key === k);
-                    return c ? (
-                      <a key={k} href={`#clause-${k}`}>
-                        {c.label} (p.{c.check.page})
-                      </a>
-                    ) : null;
-                  })}
-                </p>
+                {f.keys.length > 0 && (
+                  <p className="flag-links">
+                    From:{" "}
+                    {f.keys.map((k) => {
+                      const c = clauses.find((x) => x.key === k && x.check.status === "verified");
+                      return c ? (
+                        <a key={k} href={`#clause-${k}`}>
+                          {c.label} (p.{c.check.page})
+                        </a>
+                      ) : null;
+                    })}
+                  </p>
+                )}
               </li>
             ))}
           </ul>
           <p className="small muted">Flags are worked out by plain code, and only from clauses whose quote was found in the PDF.</p>
         </div>
       )}
+
+      <Alarms alarms={alarms} name={file.name} />
 
       <div className="card">
         <h2>Every clause, with its line</h2>
@@ -188,33 +209,42 @@ function Result({ receipt, pages, auditRan, anchor }) {
         </ul>
       </div>
 
+      <AskBox doc={doc} questions={pack.questions} pages={pages} sample={sample} />
+
       <div className="receipt">
         <div className="receipt-head">
-          <span>RENT RECEIPT</span>
+          <span>RECEIPT</span>
           <span>v{receipt.version}</span>
         </div>
         <dl>
           <dt>Document</dt>
-          <dd>{doc.name}, {doc.pages} pages</dd>
+          <dd>
+            {file.name}, {file.pages} pages
+          </dd>
+          <dt>Read as</dt>
+          <dd>{pack.name}</dd>
           <dt>PDF sha256</dt>
-          <dd className="hash">{doc.sha256}</dd>
+          <dd className="hash">{file.sha256}</dd>
           <dt>Clauses</dt>
-          <dd>{verified.length} verified, {found.length - verified.length} to check, {clauses.length - found.length} not in the agreement</dd>
+          <dd>
+            {verified.length} verified, {found.length - verified.length} to check, {clauses.length - found.length} not in it
+          </dd>
           <dt>Enclave</dt>
           <dd>{tee ? `${signed.length}/${tee.length} replies signed` : "off"}</dd>
           <dt>Receipt digest</dt>
           <dd className="hash">{receipt.digest}</dd>
         </dl>
+        <p className="small receipt-keep">Keep this file. On the day money is deducted, it&apos;s what you check them against.</p>
         <div className="receipt-actions no-print">
           <button type="button" className="btn primary" onClick={download}>
             Download receipt
           </button>
-          <Link className="btn" href="/verify?last=1">
-            Verify it now
+          <Link className="btn" href="/settle?last=1">
+            Money day
           </Link>
-          <button type="button" className="btn" onClick={() => window.print()}>
-            Print
-          </button>
+          <Link className="btn" href="/verify?last=1">
+            Verify it
+          </Link>
         </div>
       </div>
     </section>

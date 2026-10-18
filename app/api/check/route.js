@@ -12,7 +12,7 @@ const SAMPLE = "bengaluru-rent-agreement.pdf";
 export const POST = route(async (req) => {
   rateLimit(req, "check", 12, 10 * 60_000);
   const form = await req.formData().catch(() => {
-    throw new HttpError(400, "Send the agreement as a PDF file.");
+    throw new HttpError(400, "Send the document as a PDF file.");
   });
   let bytes;
   let name;
@@ -21,10 +21,11 @@ export const POST = route(async (req) => {
     name = SAMPLE;
   } else {
     const file = form.get("file");
-    if (!file || typeof file === "string") throw new HttpError(400, "Choose the agreement PDF first.");
+    if (!file || typeof file === "string") throw new HttpError(400, "Choose the PDF first.");
     if (file.size > MAX_PDF_BYTES) throw new HttpError(413, "That PDF is bigger than 20 MB.");
     bytes = Buffer.from(await file.arrayBuffer());
     name = String(file.name || "agreement.pdf").slice(0, 120);
   }
-  return Response.json(await analyse(bytes, name));
+  const pack = typeof form.get("pack") === "string" ? form.get("pack") : null;
+  return Response.json(await analyse(bytes, name, pack));
 });
