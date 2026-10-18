@@ -45,8 +45,8 @@ jobs:
           for i in $(seq 1 60); do curl -sf localhost:3000/healthz && break; sleep 1; done
       - name: pages load
         run: |
-          for path in / /compare /settle /verify; do
-            curl -sf -o /dev/null -w "$path %{http_code}\n" "localhost:3000$path"
+          for page in / /compare /settle /verify; do
+            curl -sf -o /dev/null -w "$page %{http_code}\n" "localhost:3000$page"
           done
       - name: compare the sample draft and printed copy
         run: |
