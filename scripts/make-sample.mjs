@@ -121,3 +121,91 @@ const draft = pages.map((lines) => lines.map((line) => DRAFT.reduce((l, [now, wa
 await mkdir("public", { recursive: true });
 await write("public/bengaluru-rent-agreement.pdf", pages);
 await write("public/bengaluru-rent-agreement-draft.pdf", draft);
+
+// An offer letter with the usual fresher traps: a bond, a clawback, 90 days' notice, a non-compete.
+const offer = [
+  [
+    "NORTHWIND TECHSOFT PRIVATE LIMITED",
+    "Ref: NTS/HR/2026/1187                                          Date: 05-10-2026",
+    "",
+    "OFFER OF EMPLOYMENT",
+    "",
+    "Dear Mr. Rahul Shetty,",
+    "We are pleased to offer you the position of Associate Software Engineer at our Bengaluru office.",
+    "Your date of joining will be 02-11-2026.",
+    "",
+    "1. COMPENSATION: Your total Cost to Company (CTC) will be Rs. 6,50,000/- per annum. Of this, the fixed",
+    "salary is Rs. 4,80,000/- per annum and the variable pay is Rs. 1,20,000/- per annum, payable at the",
+    "sole discretion of the Company based on individual and Company performance. The balance consists of",
+    "employer contribution to provident fund, gratuity and insurance.",
+    "",
+    "2. JOINING BONUS: You will receive a one-time joining bonus of Rs. 50,000/-, which shall be repayable in",
+    "full if you leave the Company for any reason within 12 (twelve) months of joining.",
+    "",
+    "3. SERVICE AGREEMENT: You will undergo training at the Company's cost. You agree to serve the Company",
+    "for a minimum of 24 (twenty four) months. If you leave before completing 24 months, you shall pay the",
+    "Company Rs. 2,00,000/- towards training cost recovery as liquidated damages.",
+    "",
+    "4. PROBATION: You will be on probation for 6 (six) months, during which either party may end the",
+    "employment with 30 days notice.",
+  ],
+  [
+    "5. NOTICE PERIOD: After confirmation, you shall give 90 (ninety) days notice in writing to resign.",
+    "The Company may, at its discretion, accept payment of basic salary in lieu of notice.",
+    "",
+    "6. TERMINATION: The Company may terminate your employment at any time by giving 30 days notice or",
+    "salary in lieu thereof, without assigning any reason.",
+    "",
+    "7. NON-COMPETE: For a period of 12 (twelve) months after you leave the Company, you shall not join",
+    "or work for any client or competitor of the Company, directly or indirectly.",
+    "",
+    "8. LOCATION: Your initial place of posting is Bengaluru. You may be transferred to any location or",
+    "office of the Company or its clients in India or abroad, as per business needs.",
+    "",
+    "9. LEAVE: You are entitled to 18 (eighteen) days of paid leave per calendar year.",
+    "",
+    "Please sign and return a copy of this letter as your acceptance.",
+    "",
+    "For Northwind Techsoft Private Limited",
+    "(Head - Human Resources)",
+    "",
+    "SAMPLE DOCUMENT. The company, person and every figure in this letter are invented for testing.",
+  ],
+];
+
+// A small personal loan quoted at a "flat" rate, with the charges that come with it.
+const loan = [
+  [
+    "LOAN AGREEMENT AND KEY FACT STATEMENT",
+    "",
+    "Lender: Sample Finance Limited (a made-up NBFC)                     Agreement No: SFL/PL/26/04471",
+    "Borrower: Ms. Kavya Nair, Bengaluru",
+    "",
+    "1. LOAN AMOUNT: The Lender agrees to lend and the Borrower agrees to borrow a sum of Rs. 1,00,000/-",
+    "(Rupees One Lakh only).",
+    "",
+    "2. INTEREST: Interest shall be charged at the rate of 14% per annum on a flat basis on the loan amount.",
+    "",
+    "3. TENURE AND EMI: The loan shall be repaid in 12 (twelve) equated monthly instalments of Rs. 9,500/-",
+    "each, starting from 05-12-2026.",
+    "",
+    "4. CHARGES DEDUCTED AT DISBURSAL: A processing fee of Rs. 3,000/- plus GST and a credit life insurance",
+    "premium of Rs. 2,400/- shall be deducted from the loan amount at the time of disbursal.",
+    "",
+    "5. FORECLOSURE: The Borrower may foreclose the loan after 6 EMIs on payment of a foreclosure charge of",
+    "5% of the principal outstanding.",
+    "",
+    "6. LATE PAYMENT: A late payment charge of Rs. 750/- per instalment shall apply, and penal interest at",
+    "36% per annum shall be charged on the overdue amount.",
+    "",
+    "7. BOUNCE: Each dishonour of NACH mandate or cheque shall attract a bounce charge of Rs. 590/-.",
+    "",
+    "8. RECOVERY: In the event of default, the Lender or its authorised recovery agents may contact the",
+    "Borrower's references, relatives and employer, and take such steps as it deems fit to recover dues.",
+    "",
+    "SAMPLE DOCUMENT. The lender, borrower and every figure here are invented for testing.",
+  ],
+];
+
+await write("public/sample-offer-letter.pdf", offer);
+await write("public/sample-loan-agreement.pdf", loan);
