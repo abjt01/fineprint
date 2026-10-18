@@ -85,3 +85,23 @@ test("loan maths catches a flat rate dressed up as a low one", () => {
   const titles = loan.flags([v("principal", 100000), v("rate", 12), v("tenure", 12), v("emi", 9333)]).map((f) => f.title);
   assert.ok(titles.some((t) => /real rate is about 2\d\.\d%/.test(t)), titles.join(" | "));
 });
+
+test("rent alarms land on the right days", async () => {
+  const { alarms } = await import("../../lib/alarms.js");
+  const c = (key, value, quote) => ({ key, value, quote, answer: "", check: { status: "verified", page: 1 } });
+  const out = alarms({
+    pack: "rent",
+    clauses: [
+      c("term", 11, "for a period of 11 (eleven) months commencing from 01-11-2026 and ending on 30-09-2027"),
+      c("rent", 32000, "a monthly rent of Rs. 32,000/- on or before the 5th day of every English calendar month"),
+      c("lockin", 6, "lock-in period of 6 (six) months"),
+      c("notice_tenant", 2, "the Tenant shall give 2 (two) months notice"),
+      c("refund", 60, "refunded within 60 (sixty) days"),
+    ],
+  });
+  const by = Object.fromEntries(out.map((a) => [a.title, a]));
+  assert.equal(by["Lock-in ends"].date, "2027-05-01");
+  assert.equal(by["Last day to give notice"].date, "2027-08-01");
+  assert.equal(by["Deposit refund is due"].date, "2027-11-29");
+  assert.equal(by["Rent due tomorrow"].monthlyDay, 4);
+});
