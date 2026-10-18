@@ -1,8 +1,8 @@
 {
-  "name": "rent-receipt",
+  "name": "receipts",
   "version": "0.1.0",
   "private": true,
-  "description": "Reads a rental agreement and hands back a receipt: every claim quoted from the PDF, checked in code, and signed by a model running in a TEE",
+  "description": "AI with receipts: reads contracts, answers questions about any PDF and fact-checks other AIs, with every claim quoted from the document and checked in code",
   "type": "module",
   "scripts": {
     "dev": "next dev -p 4300",
