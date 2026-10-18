@@ -43,7 +43,9 @@ export default function RootLayout({ children }) {
         <footer className="foot no-print">
           <p>
             {tee
-              ? `Documents are read by ${pretty(tee.model)} running inside a TEE, so the reply is signed by the enclave.`
+              ? tee.kind === "tinfoil"
+                ? `Documents are read by ${pretty(tee.model)} inside a Tinfoil enclave whose code is checked against its public release before anything is sent (or on Groq, if you switch that off).`
+                : `Documents are read by ${pretty(tee.model)} running inside a TEE, so the reply is signed by the enclave.`
               : `Documents are read by open-weight models (${pretty(MODELS.big)} and ${pretty(MODELS.small)}) on Groq. TEE mode is off on this server.`}{" "}
             {pretty(MODELS.audit)} audits every answer. Flags, dates, sums and comparisons are plain code.
           </p>
