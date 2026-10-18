@@ -38,6 +38,7 @@ export default function Checker({ enclaveAvailable = false }) {
   const [state, setState] = useState({ status: "idle" });
   const [pack, setPack] = useState("auto");
   const [enclave, setEnclave] = useState(enclaveAvailable);
+  const [over, setOver] = useState(false);
   const [step, setStep] = useState(0);
   const input = useRef(null);
   const results = useRef(null);
@@ -65,12 +66,16 @@ export default function Checker({ enclaveAvailable = false }) {
     }
   }
 
-  function upload(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  function send(file) {
     const form = new FormData();
     form.append("file", file);
     run(form);
+  }
+
+  function upload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    send(file);
     e.target.value = "";
   }
 
@@ -85,7 +90,7 @@ export default function Checker({ enclaveAvailable = false }) {
   return (
     <>
       <section className="drop no-print" aria-busy={busy} id="review">
-        <h2>Before you sign</h2>
+        <h2>Check a document</h2>
         <div className="chips" role="radiogroup" aria-label="Kind of document">
           {PACK_CHOICES.map((p) => (
             <button key={p.id} type="button" role="radio" aria-checked={pack === p.id} className={`chip${pack === p.id ? " on" : ""}`} onClick={() => setPack(p.id)}>
@@ -93,10 +98,28 @@ export default function Checker({ enclaveAvailable = false }) {
             </button>
           ))}
         </div>
-        <div className="drop-actions">
+        <div
+          className={`dropzone${over ? " over" : ""}`}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setOver(true);
+          }}
+          onDragLeave={() => setOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setOver(false);
+            const file = e.dataTransfer.files?.[0];
+            if (file && !busy) send(file);
+          }}
+        >
+          <svg className="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+            <path d="M14 3v6h6M12 18v-6m-3 3 3-3 3 3" />
+          </svg>
           <button type="button" className="btn primary" disabled={busy} onClick={() => input.current?.click()}>
-            Upload a PDF
+            Choose a PDF
           </button>
+          <p>or drop it here · text PDFs up to 20 MB · nothing is stored</p>
           <input ref={input} type="file" accept="application/pdf,.pdf" hidden onChange={upload} />
         </div>
         {enclaveAvailable && (
@@ -117,7 +140,7 @@ export default function Checker({ enclaveAvailable = false }) {
           ))}
         </div>
         <p className="small muted">
-          Text PDFs up to 20 MB. The samples are made up, with the usual traps left in:{" "}
+          The samples are made up, with the usual traps left in:{" "}
           {SAMPLES.map((s, i) => (
             <span key={s.id}>
               <a href={s.file} target="_blank">
@@ -128,6 +151,11 @@ export default function Checker({ enclaveAvailable = false }) {
           ))}{" "}
           Got a draft and a printed copy? <Link href="/compare">Compare them</Link>.
         </p>
+        {busy && (
+          <div className="progress" aria-hidden="true">
+            <span style={{ width: `${Math.round(((step + 1) / STEPS.length) * 100)}%` }} />
+          </div>
+        )}
         {busy && (
           <ol className="steps" aria-live="polite">
             {STEPS.map((s, i) => (
