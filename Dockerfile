@@ -1,13 +1,13 @@
 # syntax=docker/dockerfile:1
 
 # ---- deps: everything, including the dev tools the build needs ----
-FROM node:22-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 
 # ---- build ----
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # ---- run: production dependencies, the built app and the sample PDFs ----
-FROM node:22-alpine AS run
+FROM node:26-alpine AS run
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000
 COPY package.json package-lock.json ./
