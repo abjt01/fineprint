@@ -111,3 +111,20 @@ test("a painting quote that stops short still gets the fixed-charge flag from th
   const titles = rent.flags([short], pages).map((f) => f.title);
   assert.ok(titles.includes("Painting charge is cut whatever the condition"));
 });
+
+test("an enclave proof without a signature holds only when the measured code matches the release", () => {
+  const bytes = Buffer.from("%PDF-1.7 fake");
+  const response = JSON.stringify({ choices: [{ message: { content: "{}" } }] });
+  const proof = {
+    kind: "attested-channel",
+    model: "gpt-oss-120b",
+    requestHash: sha256("{}"),
+    responseHash: sha256(response),
+    response,
+    attestation: { securityVerified: true, configRepo: "tinfoilsh/confidential-model-router", releaseTag: "v1", codeFingerprint: "ab", enclaveFingerprint: "ab" },
+  };
+  const make = (p) => build({ kind: "review", pack: "rent", fileName: "a.pdf", bytes, pages, clauses: read, proofs: [p] });
+  assert.ok(verifyReceipt(make(proof)).ok);
+  assert.equal(verifyReceipt(make({ ...proof, attestation: { ...proof.attestation, enclaveFingerprint: "cd" } })).ok, false);
+  assert.equal(verifyReceipt(make({ ...proof, response: response.replace("{}", "{\"x\":1}") })).ok, false);
+});
