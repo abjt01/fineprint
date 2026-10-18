@@ -32,7 +32,6 @@ Fineprint reads the fine print and hands you a receipt. Every claim is quoted fr
 - [Project layout](#project-layout)
 - [Tests and CI](#tests-and-ci)
 - [Limits](#limits)
-- [Contributing](#contributing)
 
 ## The problem
 
@@ -211,7 +210,7 @@ scripts/             sample generator, key checker
 test/unit/           node:test suites
 ```
 
-Want a new kind of document, such as a phone plan, a school admission form or a car lease? Add one file to `lib/packs/` with its clauses, its rules and its summary. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Want a new kind of document, such as a phone plan, a school admission form or a car lease? Add one file to `lib/packs/` with its clauses, its rules and its summary, register it in `lib/packs/index.js`, and add a test.
 
 ## Tests and CI
 
@@ -230,9 +229,7 @@ npm run keys  # checks every Groq key and says which to replace
 - Flags are a starting point for a conversation, not legal advice. The only legal references are the Model Tenancy Act, 2021 (Section 11) and the Indian Contract Act, 1872 (Section 27), each with a note on how far it goes.
 - Without TEE mode, layer 3 is off, and the app says so on screen. Layers 1 and 2 still hold.
 
-## Contributing
-
-Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), and please read the [Code of Conduct](CODE_OF_CONDUCT.md). For security issues, see [SECURITY.md](SECURITY.md).
+## Credits
 
 The PDF, search and quote-matching code started from my earlier project [Form Bhaiya](https://github.com/abjt01/form-bhaiya) (MIT, built 14 October 2026), which checks government exam notices the same way. Everything else was built for this hackathon.
 
