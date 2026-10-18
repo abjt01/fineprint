@@ -1,0 +1,14 @@
+# keys and local state never go into the image
+.env
+.env.*
+!.env.example
+node_modules
+.next
+.git
+.github
+docs
+test
+*.md
+!README.md
+Dockerfile
+docker-compose.yml
