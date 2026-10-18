@@ -1,5 +1,6 @@
 // Writes public/bengaluru-rent-agreement.pdf: a made-up 11-month agreement in the style
-// Bengaluru brokers print on stamp paper, with the usual traps left in on purpose.
+// Bengaluru brokers print on stamp paper, with the usual traps left in on purpose,
+// and public/bengaluru-rent-agreement-draft.pdf: the fairer draft that was "agreed on WhatsApp".
 // Every name, address and number here is invented.
 import { mkdir, writeFile } from "node:fs/promises";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
@@ -84,23 +85,39 @@ const pages = [
   ],
 ];
 
-const pdf = await PDFDocument.create();
-pdf.setTitle("Rental Agreement (sample)");
-const font = await pdf.embedFont(StandardFonts.TimesRoman);
-const bold = await pdf.embedFont(StandardFonts.TimesRomanBold);
+// what the draft said before the printed copy changed it
+const DRAFT = [
+  ["Rs. 3,20,000/- (Rupees Three Lakh Twenty Thousand", "Rs. 1,92,000/- (Rupees One Lakh Ninety Two Thousand"],
+  ["The Owner may terminate this tenancy by giving 1 (one) month notice to the Tenant.", "The Owner may terminate this tenancy by giving 2 (two) months notice to the Tenant."],
+  ["8. PAINTING AND CLEANING: At the time of vacating, a sum equal to one month rent, that is Rs. 32,000/-,", "8. PAINTING AND CLEANING: At the time of vacating, the actual cost of painting, as per bills, shall"],
+  ["shall be deducted from the security deposit towards painting and cleaning charges, irrespective of", "be deducted from the security deposit only if the walls are damaged beyond normal wear and tear,"],
+  ["the condition of the premises.", "subject to a maximum of Rs. 10,000/-."],
+  ["60 (sixty) days after the Tenant hands over vacant possession of the premises and the keys.", "15 (fifteen) days after the Tenant hands over vacant possession of the premises and the keys."],
+];
 
-pages.forEach((lines, i) => {
-  const page = pdf.addPage([595, 842]);
-  let y = 780;
-  for (const line of lines) {
-    const heading = /^[A-Z ]{6,}$/.test(line) || /^\d+\. [A-Z -]+:/.test(line);
-    const size = i === 0 && y === 780 ? 16 : 10.5;
-    page.drawText(line, { x: 56, y, size, font: heading ? bold : font, color: rgb(0.1, 0.1, 0.1) });
-    y -= line ? 17 : 10;
-  }
-  page.drawText(`Page ${i + 1} of ${pages.length}`, { x: 268, y: 40, size: 9, font });
-});
+async function write(file, sheets) {
+  const pdf = await PDFDocument.create();
+  pdf.setTitle("Rental Agreement (sample)");
+  const font = await pdf.embedFont(StandardFonts.TimesRoman);
+  const bold = await pdf.embedFont(StandardFonts.TimesRomanBold);
 
+  sheets.forEach((lines, i) => {
+    const page = pdf.addPage([595, 842]);
+    let y = 780;
+    for (const line of lines) {
+      const heading = /^[A-Z ]{6,}$/.test(line) || /^\d+\. [A-Z -]+:/.test(line);
+      const size = i === 0 && y === 780 ? 16 : 10.5;
+      page.drawText(line, { x: 56, y, size, font: heading ? bold : font, color: rgb(0.1, 0.1, 0.1) });
+      y -= line ? 17 : 10;
+    }
+    page.drawText(`Page ${i + 1} of ${sheets.length}`, { x: 268, y: 40, size: 9, font });
+  });
+
+  await writeFile(file, await pdf.save());
+  console.log(`wrote ${file}`);
+}
+
+const draft = pages.map((lines) => lines.map((line) => DRAFT.reduce((l, [now, was]) => l.replace(now, was), line)));
 await mkdir("public", { recursive: true });
-await writeFile("public/bengaluru-rent-agreement.pdf", await pdf.save());
-console.log("wrote public/bengaluru-rent-agreement.pdf");
+await write("public/bengaluru-rent-agreement.pdf", pages);
+await write("public/bengaluru-rent-agreement-draft.pdf", draft);
