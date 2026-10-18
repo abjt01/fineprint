@@ -3,7 +3,11 @@ import { test } from "node:test";
 import { Wallet } from "ethers";
 import { build, digestOf, verifyReceipt } from "../../lib/receipt.js";
 import { check } from "../../lib/reader.js";
-import { flags } from "../../lib/rules.js";
+import { detect } from "../../lib/packs/index.js";
+import loan, { emi, impliedRate } from "../../lib/packs/loan.js";
+import rent from "../../lib/packs/rent.js";
+
+const flags = (c) => rent.flags(c);
 import { checkSignature, sha256 } from "../../lib/tee.js";
 
 const pages = [
@@ -45,7 +49,7 @@ test("rules ignore clauses that weren't verified", () => {
 
 test("a receipt verifies, and editing one number breaks it", () => {
   const bytes = Buffer.from("%PDF-1.7 fake");
-  const r = build({ fileName: "a.pdf", bytes, pages, clauses: read, flags: flags(read), stake: null, proofs: [] });
+  const r = build({ kind: "review", pack: "rent", fileName: "a.pdf", bytes, pages, clauses: read, flags: flags(read), summary: rent.summary(read), proofs: [] });
   assert.ok(verifyReceipt(r, { bytes, pages }).ok);
   const edited = structuredClone(r);
   edited.clauses[1].value = 64000;
@@ -65,4 +69,19 @@ test("an enclave signature over the request and response hashes checks out", asy
   assert.ok(checkSignature({ text, signature, signingAddress: wallet.address, requestHash, responseHash }).ok);
   assert.equal(checkSignature({ text, signature, signingAddress: Wallet.createRandom().address, requestHash, responseHash }).ok, false);
   assert.equal(checkSignature({ text, signature, signingAddress: wallet.address, requestHash: sha256("x"), responseHash }).ok, false);
+});
+
+test("packs are picked by keywords", () => {
+  assert.equal(detect(pages).id, "rent");
+  assert.equal(detect(["This offer letter confirms your employment. Your CTC is Rs. 12,00,000. Probation is six months. Notice period 90 days. Joining date. Salary. Designation."]).id, "job");
+  assert.equal(detect(["The weather was pleasant and the train was late."]).id, "general");
+});
+
+test("loan maths catches a flat rate dressed up as a low one", () => {
+  assert.equal(Math.round(emi(100000, 12, 12)), 8885);
+  assert.ok(Math.abs(impliedRate(100000, 8885, 12) - 12) < 0.05);
+  const v = (key, value) => ({ key, value, quote: "", answer: "", check: { status: "verified" } });
+  // Rs. 1,00,000 at "12% flat" for 12 months is 12 EMIs of 9,333
+  const titles = loan.flags([v("principal", 100000), v("rate", 12), v("tenure", 12), v("emi", 9333)]).map((f) => f.title);
+  assert.ok(titles.some((t) => /real rate is about 2\d\.\d%/.test(t)), titles.join(" | "));
 });
