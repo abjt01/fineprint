@@ -128,3 +128,11 @@ test("an enclave proof without a signature holds only when the measured code mat
   assert.equal(verifyReceipt(make({ ...proof, attestation: { ...proof.attestation, enclaveFingerprint: "cd" } })).ok, false);
   assert.equal(verifyReceipt(make({ ...proof, response: response.replace("{}", "{\"x\":1}") })).ok, false);
 });
+
+test("rent day is found in the sentence after a short rent quote", async () => {
+  const { alarms } = await import("../../lib/alarms.js");
+  const page = "1. PERIOD: for a period of 11 (eleven) months commencing from 01-11-2026 and ending on 30-09-2027.\n2. RENT: The Tenant shall pay a monthly rent of Rs. 32,000/- (Rupees Thirty Two Thousand only)\non or before the 5th day of every English calendar month.";
+  const c = (key, value, quote) => ({ key, value, quote, answer: "", check: { status: "verified", page: 1 } });
+  const out = alarms({ pack: "rent", clauses: [c("term", 11, "commencing from 01-11-2026 and ending on 30-09-2027"), c("rent", 32000, "The Tenant shall pay a monthly rent of Rs. 32,000/-")] }, [page]);
+  assert.equal(out.find((a) => a.monthlyDay)?.monthlyDay, 4);
+});
