@@ -11,9 +11,9 @@ const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500", "700"], 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Rent Receipt",
+  title: "Receipts",
   description:
-    "Reads your rental agreement before you sign it. Every answer is quoted from the PDF and checked in code, a second model audits it, and in TEE mode the model's reply is signed inside an enclave. You get a receipt anyone can verify.",
+    "AI with receipts. Reads your rent agreement, offer letter, loan or insurance policy with every answer quoted from the PDF and checked in code, compares the draft with the printed copy, sets alarms for the dates that cost money, and checks deductions against what you signed.",
 };
 
 export const viewport = { themeColor: "#1c1b19" };
@@ -30,20 +30,22 @@ export default function RootLayout({ children }) {
             <span className="brand-mark" aria-hidden="true">
               ₹
             </span>
-            Rent Receipt
+            Receipts
           </Link>
           <nav>
-            <Link href="/">Check an agreement</Link>
-            <Link href="/verify">Verify a receipt</Link>
+            <Link href="/">Review</Link>
+            <Link href="/compare">Compare</Link>
+            <Link href="/settle">Money day</Link>
+            <Link href="/verify">Verify</Link>
           </nav>
         </header>
         {children}
         <footer className="foot no-print">
           <p>
             {tee
-              ? `Agreements are read by ${pretty(tee.model)} running inside a TEE, so the reply is signed by the enclave.`
-              : `Agreements are read by open-weight models (${pretty(MODELS.big)} and ${pretty(MODELS.small)}) on Groq. TEE mode is off on this server.`}{" "}
-            {pretty(MODELS.audit)} audits every answer. Flags and sums are plain code.
+              ? `Documents are read by ${pretty(tee.model)} running inside a TEE, so the reply is signed by the enclave.`
+              : `Documents are read by open-weight models (${pretty(MODELS.big)} and ${pretty(MODELS.small)}) on Groq. TEE mode is off on this server.`}{" "}
+            {pretty(MODELS.audit)} audits every answer. Flags, dates, sums and comparisons are plain code.
           </p>
           <p>This is not legal advice. Every answer shows the line it came from, so read that line yourself.</p>
         </footer>

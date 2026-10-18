@@ -73,7 +73,7 @@ export default function Verifier() {
         </div>
         <div>
           <button type="button" className="btn" onClick={() => pdfInput.current?.click()}>
-            Add the agreement PDF (optional)
+            Add the PDF (optional)
           </button>
           <span className="picked">{pdf ? pdf.name : "without it, the quotes can't be re-found"}</span>
           <input ref={pdfInput} type="file" accept="application/pdf,.pdf" hidden onChange={(e) => setPdf(e.target.files?.[0] || null)} />

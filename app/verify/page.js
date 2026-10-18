@@ -1,6 +1,6 @@
 import Verifier from "@/components/Verifier";
 
-export const metadata = { title: "Verify a receipt · Rent Receipt" };
+export const metadata = { title: "Verify a receipt · Receipts" };
 
 export default function VerifyPage() {
   return (
