@@ -105,3 +105,9 @@ test("rent alarms land on the right days", async () => {
   assert.equal(by["Deposit refund is due"].date, "2027-11-29");
   assert.equal(by["Rent due tomorrow"].monthlyDay, 4);
 });
+
+test("a painting quote that stops short still gets the fixed-charge flag from the rest of its sentence", () => {
+  const short = { key: "painting", value: 32000, quote: "a sum of Rs. 32,000/- shall be deducted towards painting", answer: "", check: { status: "verified", page: 2 } };
+  const titles = rent.flags([short], pages).map((f) => f.title);
+  assert.ok(titles.includes("Painting charge is cut whatever the condition"));
+});
