@@ -1,4 +1,4 @@
-// Writes sample/bengaluru-rent-agreement.pdf: a made-up 11-month agreement in the style
+// Writes public/bengaluru-rent-agreement.pdf: a made-up 11-month agreement in the style
 // Bengaluru brokers print on stamp paper, with the usual traps left in on purpose.
 // Every name, address and number here is invented.
 import { mkdir, writeFile } from "node:fs/promises";
@@ -101,6 +101,6 @@ pages.forEach((lines, i) => {
   page.drawText(`Page ${i + 1} of ${pages.length}`, { x: 268, y: 40, size: 9, font });
 });
 
-await mkdir("sample", { recursive: true });
-await writeFile("sample/bengaluru-rent-agreement.pdf", await pdf.save());
-console.log("wrote sample/bengaluru-rent-agreement.pdf");
+await mkdir("public", { recursive: true });
+await writeFile("public/bengaluru-rent-agreement.pdf", await pdf.save());
+console.log("wrote public/bengaluru-rent-agreement.pdf");
