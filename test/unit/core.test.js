@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { Wallet } from "ethers";
-import { build, verifyReceipt } from "../../lib/receipt.js";
+import { build, digestOf, verifyReceipt } from "../../lib/receipt.js";
 import { check } from "../../lib/reader.js";
 import { flags } from "../../lib/rules.js";
 import { checkSignature, sha256 } from "../../lib/tee.js";
@@ -18,14 +18,15 @@ const read = [
   clause("deposit", 320000, "has paid a sum of Rs. 3,20,000/- as interest free", 1),
   clause("notice_tenant", 2, "the Tenant shall give 2 (two) months notice in writing", 2, "months"),
   clause("notice_owner", 1, "The Owner may terminate this tenancy by giving 1 (one) month notice", 2, "months"),
-  clause("painting", 32000, "deducted towards painting, irrespective of the condition", 2),
+  clause("painting", 32000, "a sum of Rs. 32,000/- shall be deducted towards painting, irrespective of the condition", 2),
 ].map((c) => ({ ...c, check: check(pages, c) }));
 
 test("quotes and rupee amounts are found on their page", () => {
   assert.ok(read.every((c) => c.check.status === "verified"));
 });
 
-test("a made-up quote or a wrong amount is caught", () => {
+test("a made-up quote, a wrong amount or a quote without its amount is caught", () => {
+  assert.equal(check(pages, clause("painting", 32000, "deducted towards painting, irrespective of the condition", 2)).status, "check");
   assert.equal(check(pages, clause("deposit", 320000, "deposit of two months rent only", 1)).status, "check");
   assert.equal(check(pages, clause("rent", 35000, "shall pay a monthly rent of Rs. 32,000/-", 1)).status, "check");
 });
@@ -48,7 +49,11 @@ test("a receipt verifies, and editing one number breaks it", () => {
   assert.ok(verifyReceipt(r, { bytes, pages }).ok);
   const edited = structuredClone(r);
   edited.clauses[1].value = 64000;
-  assert.equal(verifyReceipt(edited).ok, false);
+  const result = verifyReceipt(edited);
+  assert.equal(result.ok, false);
+  // even if the editor fixes up the digest, the amount no longer matches its own quote
+  edited.digest = digestOf(edited);
+  assert.ok(verifyReceipt(edited).checks.some((c) => !c.ok && /own quote/.test(c.title)));
 });
 
 test("an enclave signature over the request and response hashes checks out", async () => {
