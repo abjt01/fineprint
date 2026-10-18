@@ -91,8 +91,11 @@ On top of that:
 npm install
 cp .env.example .env   # add GROQ_API_KEY (free at console.groq.com)
 npm run dev            # http://localhost:4300
-npm test               # quote checks, packs, loan maths, diff, alarms, receipts, signatures
+npm test               # quote checks, packs, loan maths, diff, alarms, receipts, signatures, key pool
+npm run keys           # checks every Groq key and says which to replace
 ```
+
+Several Groq keys can share the load: put extra ones in `GROQ_API_KEYS`, comma-separated. Each key gets its own per-minute budget per model, and requests go to the key with the most room. A key that hits a rate limit rests for as long as Groq asks while the others carry on, and a rejected key drops out of the rotation ([`lib/keys.js`](lib/keys.js)). Keys live only in `.env` or the host's environment, never in the repo.
 
 TEE mode, free to start with [Tinfoil](https://tinfoil.sh) (Dashboard → API keys, no card):
 
