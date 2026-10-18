@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Checker from "@/components/Checker";
+import { teeConfig } from "@/lib/llm";
 
 const MOMENTS = [
   { n: "1", when: "Before you sign", what: "Every clause that costs money, with its line. Flags worked out in code.", href: "#review" },
@@ -31,7 +32,7 @@ export default function Home() {
           </li>
         ))}
       </ol>
-      <Checker />
+      <Checker enclaveAvailable={Boolean(teeConfig())} />
     </main>
   );
 }

@@ -7,7 +7,7 @@ const SAMPLE_CLAIM =
   "Your deposit is Rs. 3,20,000 and it is refunded within 30 days of vacating. Rent is Rs. 32,000 per month. The owner pays for all structural repairs. You can sublet one room.";
 
 // Ask the document anything, or paste what ChatGPT told you about it and see which parts hold.
-export default function AskBox({ doc, questions = [], pages, sample }) {
+export default function AskBox({ doc, questions = [], pages, sample, enclave = true }) {
   const [mode, setMode] = useState("ask");
   const [input, setInput] = useState("");
   const [state, setState] = useState({ status: "idle" });
@@ -21,7 +21,7 @@ export default function AskBox({ doc, questions = [], pages, sample }) {
       const res = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(mode === "ask" ? { doc, question: v } : { doc, check: v }),
+        body: JSON.stringify(mode === "ask" ? { doc, question: v, enclave } : { doc, check: v, enclave }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "That didn't work.");

@@ -28,5 +28,5 @@ export const POST = route(async (req) => {
     name = String(file.name || "agreement.pdf").slice(0, 120);
   }
   const pack = typeof form.get("pack") === "string" ? form.get("pack") : null;
-  return Response.json(await analyse(bytes, name, pack));
+  return Response.json(await analyse(bytes, name, pack, { enclave: form.get("enclave") !== "0" }));
 });

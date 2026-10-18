@@ -9,6 +9,7 @@ import { saveReceipt } from "./format";
 
 const STEPS = [
   "Pulling the text out of every page",
+  "Checking the enclave's attestation",
   "Working out what kind of document this is",
   "Reading the clauses that cost you money",
   "Finding every quote in the PDF, in code",
@@ -33,9 +34,10 @@ export const PACK_CHOICES = [
   { id: "general", name: "Any contract / T&C" },
 ];
 
-export default function Checker() {
+export default function Checker({ enclaveAvailable = false }) {
   const [state, setState] = useState({ status: "idle" });
   const [pack, setPack] = useState("auto");
+  const [enclave, setEnclave] = useState(enclaveAvailable);
   const [step, setStep] = useState(0);
   const input = useRef(null);
   const results = useRef(null);
@@ -43,19 +45,20 @@ export default function Checker() {
   useEffect(() => {
     if (state.status !== "busy") return;
     setStep(0);
-    const t = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 650);
+    const t = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), enclave ? 2200 : 650);
     return () => clearInterval(t);
-  }, [state.status]);
+  }, [state.status, enclave]);
 
   async function run(form) {
     if (pack !== "auto") form.append("pack", pack);
+    form.append("enclave", enclave ? "1" : "0");
     setState({ status: "busy" });
     try {
       const res = await fetch("/api/check", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "That didn't work.");
       saveReceipt(data.receipt);
-      setState({ status: "done", sample: form.get("sample") === "rent", ...data });
+      setState({ status: "done", sample: form.get("sample") === "rent", enclave, ...data });
       setTimeout(() => results.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     } catch (err) {
       setState({ status: "error", error: err.message });
@@ -96,6 +99,15 @@ export default function Checker() {
           </button>
           <input ref={input} type="file" accept="application/pdf,.pdf" hidden onChange={upload} />
         </div>
+        {enclaveAvailable && (
+          <label className="enclave-toggle">
+            <input type="checkbox" checked={enclave} onChange={(e) => setEnclave(e.target.checked)} disabled={busy} />
+            <span>
+              <strong>Read inside a secure enclave.</strong> The document is encrypted to verified hardware, so not even the AI provider can
+              see it. Takes about 15 seconds longer.
+            </span>
+          </label>
+        )}
         <div className="samples">
           <span className="small muted">Or try a sample:</span>
           {SAMPLES.map((s) => (
@@ -133,7 +145,7 @@ export default function Checker() {
   );
 }
 
-function Result({ receipt, pages, doc, pack, alarms, auditRan, sample, anchor }) {
+function Result({ receipt, pages, doc, pack, alarms, auditRan, sample, enclave, anchor }) {
   const { clauses, flags, summary, tee, document: file } = receipt;
   const found = clauses.filter((c) => c.found);
   const verified = found.filter((c) => c.check.status === "verified");
@@ -228,7 +240,7 @@ function Result({ receipt, pages, doc, pack, alarms, auditRan, sample, anchor })
         </ul>
       </div>
 
-      <AskBox doc={doc} questions={pack.questions} pages={pages} sample={sample} />
+      <AskBox doc={doc} questions={pack.questions} pages={pages} sample={sample} enclave={enclave} />
 
       <div className="receipt">
         <div className="receipt-head">

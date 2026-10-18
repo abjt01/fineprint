@@ -10,6 +10,7 @@ export const POST = route(async (req) => {
   rateLimit(req, "ask", 30, 10 * 60_000);
   const body = await readBody(req);
   const doc = recall(body.doc);
-  if (body.check !== undefined) return Response.json(await factcheck(doc, text(body.check, { label: "The text to check", max: 6000, min: 20 })));
-  return Response.json(await ask(doc, text(body.question, { label: "The question", max: 300, min: 4 })));
+  const opts = { enclave: body.enclave !== false };
+  if (body.check !== undefined) return Response.json(await factcheck(doc, text(body.check, { label: "The text to check", max: 6000, min: 20 }), opts));
+  return Response.json(await ask(doc, text(body.question, { label: "The question", max: 300, min: 4 }), opts));
 });
