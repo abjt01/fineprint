@@ -1,10 +1,12 @@
-# Receipts
+# Fineprint
 
-**Every AI can read your contract. Receipts stays until your money comes back.**
+**Every AI can read your contract. Fineprint stays until your money comes back.**
+
+Fineprint reads the fine print and hands you a receipt: every claim quoted from your PDF, checked in code, and verifiable later without any AI.
 
 People don't lose money on the day they read a contract. They lose it at the signing desk, when the printed copy isn't the draft they agreed to. Months later, they miss a notice deadline. On the last day, a landlord deducts Rs. 45,000 from the deposit and dares them to argue.
 
-Receipts covers all of those days. It reads rent agreements, offer letters, loans, health insurance and any other terms you sign. Everything it tells you is quoted from the PDF and checked in code, and a second model audits it. You keep a **receipt**: a file anyone can verify later, with no AI involved in the checking.
+Fineprint covers all of those days. It reads rent agreements, offer letters, loans, health insurance and any other terms you sign. Everything it tells you is quoted from the PDF and checked in code, and a second model audits it. You keep a **receipt**: a file anyone can verify later, with no AI involved in the checking.
 
 Built for Hacktoberfest Hack Day Bengaluru 2026.
 
@@ -15,7 +17,7 @@ Built for Hacktoberfest Hack Day Bengaluru 2026.
 
 ## The four moments
 
-| When | What Receipts does | Who decides |
+| When | What Fineprint does | Who decides |
 | --- | --- | --- |
 | **Before you sign** | Picks the kind of document (rent, job offer, loan, health insurance, any contract) and reads out the clauses that cost money. Each one comes with its line and page. Flags what to push back on. | Model reads, **code** checks every quote and works out every flag |
 | **At the signing desk** | *Printed ≠ promised.* Compares the draft from WhatsApp with the copy on stamp paper, word by word, and shows every change with its page in both. | **Code only**, no model |
@@ -118,8 +120,8 @@ TEE_MODEL=openai/gpt-oss-120b
 ```bash
 docker compose up --build            # http://localhost:3000, keys read from .env at run time
 # or
-docker build -t receipts .
-docker run -p 3000:3000 --env-file .env receipts
+docker build -t fineprint .
+docker run -p 3000:3000 --env-file .env fineprint
 ```
 
 The image never contains `.env` or any key (see `.dockerignore`). It runs as the unprivileged `node` user and has a health check on `/healthz`.

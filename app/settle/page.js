@@ -1,6 +1,6 @@
 import Settle from "@/components/Settle";
 
-export const metadata = { title: "Money day · Receipts" };
+export const metadata = { title: "Money day · Fineprint" };
 
 export default function SettlePage() {
   return (

@@ -7,16 +7,16 @@ const esc = (s) => String(s).replace(/[\\;,]/g, (m) => `\\${m}`).replace(/\n/g, 
 
 function calendar(alarms, name) {
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Receipts//Trap alarms//EN", "CALSCALE:GREGORIAN"];
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Fineprint//Trap alarms//EN", "CALSCALE:GREGORIAN"];
   alarms.forEach((a, i) => {
-    lines.push("BEGIN:VEVENT", `UID:${ics(a.date)}-${i}@receipts`, `DTSTAMP:${stamp}`);
+    lines.push("BEGIN:VEVENT", `UID:${ics(a.date)}-${i}@fineprint`, `DTSTAMP:${stamp}`);
     if (a.monthlyDay) {
       const first = `${a.date.slice(0, 8)}${String(a.monthlyDay).padStart(2, "0")}`;
       lines.push(`DTSTART;VALUE=DATE:${ics(first)}`, `RRULE:FREQ=MONTHLY;BYMONTHDAY=${a.monthlyDay};UNTIL=${ics(a.until)}`);
     } else {
       lines.push(`DTSTART;VALUE=DATE:${ics(a.date)}`);
     }
-    lines.push(`SUMMARY:${esc(`${a.title} (${name})`)}`, `DESCRIPTION:${esc(`${a.detail}\nFrom the agreement, page ${a.from.map((f) => f.page).join(", ")}. Worked out by Receipts.`)}`);
+    lines.push(`SUMMARY:${esc(`${a.title} (${name})`)}`, `DESCRIPTION:${esc(`${a.detail}\nFrom the agreement, page ${a.from.map((f) => f.page).join(", ")}. Worked out by Fineprint.`)}`);
     lines.push("BEGIN:VALARM", "ACTION:DISPLAY", "TRIGGER:-P1D", `DESCRIPTION:${esc(a.title)}`, "END:VALARM", "END:VEVENT");
   });
   lines.push("END:VCALENDAR");

@@ -1,6 +1,6 @@
 export const rupees = (n) => `Rs. ${Math.round(Number(n) || 0).toLocaleString("en-IN")}`;
 
-const KEY = "rent-receipt:last";
+const KEY = "fineprint:last";
 
 // Session storage only carries the last receipt over to the verify page; nothing depends on it.
 export function saveReceipt(receipt) {

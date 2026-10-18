@@ -1,9 +1,9 @@
 # docker compose up --build, then open http://localhost:3000
 # Keys are read from .env at run time and never baked into the image.
 services:
-  receipts:
+  fineprint:
     build: .
-    image: receipts
+    image: fineprint
     ports:
       - "3000:3000"
     env_file:

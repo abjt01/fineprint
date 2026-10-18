@@ -63,7 +63,7 @@ export default function Header() {
           <span className="brand-mark" aria-hidden="true">
             ₹
           </span>
-          receipts
+          fineprint
         </Link>
         <nav>
           {NAV.map(([href, label]) => (

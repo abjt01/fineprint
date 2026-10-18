@@ -22,17 +22,17 @@ jobs:
         with:
           context: .
           load: true
-          tags: receipts:test
+          tags: fineprint:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: run the container and check it answers
         run: |
-          docker run -d --name receipts -p 3000:3000 receipts:test
+          docker run -d --name fineprint -p 3000:3000 fineprint:test
           for i in $(seq 1 60); do curl -sf localhost:3000/healthz && break; sleep 1; done
           curl -sf -o /dev/null localhost:3000/
           curl -sf -F sample=1 localhost:3000/api/compare | grep -q '"changes"'
-          docker inspect --format '{{.State.Health.Status}}' receipts || true
-          docker rm -f receipts
+          docker inspect --format '{{.State.Health.Status}}' fineprint || true
+          docker rm -f fineprint
       - name: log in to GitHub Container Registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3

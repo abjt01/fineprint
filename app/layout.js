@@ -14,9 +14,9 @@ const THEME = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Receipts",
+  title: "Fineprint",
   description:
-    "AI with receipts. Reads your rent agreement, offer letter, loan or insurance policy with every answer quoted from the PDF and checked in code, compares the draft with the printed copy, sets alarms for the dates that cost money, and checks deductions against what you signed.",
+    "Reads the fine print and hands you a receipt. Reads your rent agreement, offer letter, loan or insurance policy with every answer quoted from the PDF and checked in code, compares the draft with the printed copy, sets alarms for the dates that cost money, and checks deductions against what you signed.",
 };
 
 export const viewport = {

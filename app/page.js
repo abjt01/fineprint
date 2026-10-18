@@ -23,7 +23,7 @@ function Till() {
     <div className="till" aria-label="Example receipt for the sample rent agreement">
       <div className="till-paper">
         <div className="till-head">
-          <strong>RECEIPTS</strong>
+          <strong>FINEPRINT</strong>
           bengaluru-rent-agreement.pdf
           <br />3 pages · 14 of 14 quotes found
         </div>
@@ -56,7 +56,7 @@ export default function Home() {
         <div>
           <p className="eyebrow">Open-weight AI · checked in code</p>
           <h1>
-            Every AI can read your contract. Receipts stays until <span className="hl">your money comes back.</span>
+            Every AI can read your contract. Fineprint stays until <span className="hl">your money comes back.</span>
           </h1>
           <p className="lede">
             Rent agreements, offer letters, loans, insurance, any terms you sign. Every answer is quoted from your PDF and checked by code, a

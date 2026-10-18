@@ -1,8 +1,8 @@
 {
-  "name": "receipts",
+  "name": "fineprint",
   "version": "0.1.0",
   "private": true,
-  "description": "AI with receipts: reads contracts, answers questions about any PDF and fact-checks other AIs, with every claim quoted from the document and checked in code",
+  "description": "Reads the fine print and hands you a receipt: reads contracts, answers questions about any PDF and fact-checks other AIs, with every claim quoted from the document and checked in code",
   "type": "module",
   "scripts": {
     "dev": "next dev -p 4300",

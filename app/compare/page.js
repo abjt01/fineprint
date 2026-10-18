@@ -1,6 +1,6 @@
 import Compare from "@/components/Compare";
 
-export const metadata = { title: "Printed vs promised · Receipts" };
+export const metadata = { title: "Printed vs promised · Fineprint" };
 
 export default function ComparePage() {
   return (

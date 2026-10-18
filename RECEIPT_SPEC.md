@@ -7,7 +7,7 @@ A receipt is one JSON file that records what an AI said about a document, with e
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `version` | number | `1` |
-| `app` | string | `"receipts"` |
+| `app` | string | `"fineprint"` |
 | `kind` | string | `"review"` (clauses read from a contract), `"answer"` (a question answered) or `"factcheck"` (another AI's claims checked) |
 | `pack` | string or null | For reviews: `rent`, `job`, `loan`, `insurance` or `general` |
 | `question` | string or null | For answers: the question asked |
