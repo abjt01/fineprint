@@ -167,8 +167,8 @@ function Result({ receipt, pages, doc, pack, alarms, auditRan, sample, anchor })
         <Layer
           ok={signed.length > 0 && signed.length === tee.length}
           warn={!tee}
-          title="3. Signed in an enclave"
-          detail={tee ? (signed.length === tee.length ? `${signed.length} model replies signed inside a TEE by ${tee[0].signingAddress?.slice(0, 10)}…` : `${tee.length - signed.length} of ${tee.length} proofs didn't check out.`) : "TEE mode is off on this server, so the model's reply isn't signed. Layers 1 and 2 still hold."}
+          title="3. Read inside an enclave"
+          detail={tee ? (signed.length === tee.length ? tee[0].summary : `${tee.length - signed.length} of ${tee.length} enclave proofs didn't check out.`) : "TEE mode is off on this server, so the model didn't run in an enclave. Layers 1 and 2 still hold."}
         />
       </div>
 
@@ -249,7 +249,7 @@ function Result({ receipt, pages, doc, pack, alarms, auditRan, sample, anchor })
             {verified.length} verified, {found.length - verified.length} to check, {clauses.length - found.length} not in it
           </dd>
           <dt>Enclave</dt>
-          <dd>{tee ? `${signed.length}/${tee.length} replies signed` : "off"}</dd>
+          <dd>{tee ? `${signed.length}/${tee.length} replies proven` : "off"}</dd>
           <dt>Receipt digest</dt>
           <dd className="hash">{receipt.digest}</dd>
         </dl>
