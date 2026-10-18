@@ -16,7 +16,13 @@ export default function Verifier() {
     const last = loadReceipt();
     if (last) {
       setReceiptText(last);
-      setReceiptName("the receipt you just made");
+      let name = "the receipt you just made";
+      try {
+        name = `receipt for ${JSON.parse(last).document.name}`;
+      } catch {
+        // keep the generic name
+      }
+      setReceiptName(name);
     }
   }, []);
 

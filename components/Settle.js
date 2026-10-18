@@ -14,6 +14,16 @@ const LABEL = {
   unclear: "Unclear",
 };
 
+// "receipt for bengaluru-rent-agreement.pdf (rent)", so it's clear which agreement the deductions are checked against
+function describe(text, fallback) {
+  try {
+    const r = JSON.parse(text);
+    return r?.document?.name ? `receipt for ${r.document.name}${r.pack ? ` (${r.pack})` : ""}` : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export default function Settle() {
   const [receipt, setReceipt] = useState("");
   const [name, setName] = useState("");
@@ -26,7 +36,7 @@ export default function Settle() {
     const last = loadReceipt();
     if (last) {
       setReceipt(last);
-      setName("the receipt you just made");
+      setName(describe(last, "the receipt you just made"));
     }
   }, []);
 
@@ -46,8 +56,9 @@ export default function Settle() {
   async function pick(e) {
     const f = e.target.files?.[0];
     if (!f) return;
-    setReceipt(await f.text());
-    setName(f.name);
+    const text = await f.text();
+    setReceipt(text);
+    setName(describe(text, f.name));
     e.target.value = "";
   }
 
