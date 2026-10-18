@@ -113,6 +113,23 @@ TEE_MODEL=openai/gpt-oss-120b
 
 `npm run sample` rebuilds the sample PDFs.
 
+### Docker
+
+```bash
+docker compose up --build            # http://localhost:3000, keys read from .env at run time
+# or
+docker build -t receipts .
+docker run -p 3000:3000 --env-file .env receipts
+```
+
+The image never contains `.env` or any key (see `.dockerignore`). It runs as the unprivileged `node` user and has a health check on `/healthz`.
+
+### CI
+
+- `ci`: unit tests and a production build on Node 20 and 22, then a smoke test that starts the app and checks the pages, the draft-vs-printed comparison and receipt verification (none of which need an API key).
+- `docker`: builds the image, runs it and checks it answers, then publishes it to GitHub Container Registry on pushes to `main` and version tags.
+- Dependabot keeps npm packages, actions and the base image up to date.
+
 ## How it's built
 
 - Next.js 16, plain CSS, no database. Uploaded documents stay in memory for an hour for follow-up questions, and nothing is written to disk.
