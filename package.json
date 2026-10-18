@@ -1,0 +1,28 @@
+{
+  "name": "rent-receipt",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reads a rental agreement and hands back a receipt: every claim quoted from the PDF, checked in code, and signed by a model running in a TEE",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 4300",
+    "build": "next build",
+    "start": "next start",
+    "test": "node --test \"test/unit/*.test.js\"",
+    "sample": "node scripts/make-sample.mjs"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.15.0",
+    "next": "^16.4.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "unpdf": "^1.8.1"
+  },
+  "devDependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}
