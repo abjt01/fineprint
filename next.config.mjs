@@ -5,7 +5,7 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ["unpdf"],
+  serverExternalPackages: ["unpdf", "tinfoil"],
   outputFileTracingRoot: root,
   turbopack: { root },
 };
