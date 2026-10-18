@@ -1,4 +1,4 @@
-import { HttpError, rateLimit, route } from "@/lib/http";
+import { HttpError, route } from "@/lib/http";
 import { MAX_PDF_BYTES, pdfPages } from "@/lib/pdf";
 import { verifyReceipt } from "@/lib/receipt";
 
@@ -6,7 +6,6 @@ export const runtime = "nodejs";
 
 // Checks a receipt someone hands you. Nothing here calls a model: it's hashes, string search and signatures.
 export const POST = route(async (req) => {
-  rateLimit(req, "verify", 60, 10 * 60_000);
   const form = await req.formData().catch(() => {
     throw new HttpError(400, "Send the receipt file.");
   });
@@ -30,4 +29,4 @@ export const POST = route(async (req) => {
     pages = await pdfPages(bytes);
   }
   return Response.json(verifyReceipt(receipt, { bytes, pages }));
-});
+}, { limit: "verify" });

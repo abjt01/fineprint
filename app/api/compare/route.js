@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { compare } from "@/lib/diff";
-import { HttpError, rateLimit, route } from "@/lib/http";
+import { HttpError, route } from "@/lib/http";
 import { detect } from "@/lib/packs/index";
 import { MAX_PDF_BYTES, pdfPages } from "@/lib/pdf";
 
@@ -17,7 +17,6 @@ async function pdfFrom(form, name, sample) {
 
 // Two PDFs in, every difference out. No model is called here.
 export const POST = route(async (req) => {
-  rateLimit(req, "compare", 30, 10 * 60_000);
   const form = await req.formData().catch(() => {
     throw new HttpError(400, "Send the two PDFs.");
   });
@@ -25,4 +24,4 @@ export const POST = route(async (req) => {
   const after = await pdfPages(await pdfFrom(form, "after", "bengaluru-rent-agreement.pdf"));
   const pack = detect(after);
   return Response.json({ pack: { id: pack.id, name: pack.name }, pages: { before: before.length, after: after.length }, changes: compare(before, after, pack) });
-});
+}, { limit: "compare" });
