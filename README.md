@@ -68,7 +68,7 @@ Three layers. Each one can be checked by someone who doesn't trust the one befor
 | --- | --- | --- |
 | 1. Found in your PDF | The line exists and the number is in it | Plain code finds every quote on its page (exact, or 85% of its words close together) and checks the amount is written in the quote. If not, the model is shown the page and asked once more (self-correction). If it still can't point at the line, the answer gets a red **? check** stamp. |
 | 2. Second opinion | The line was read the right way | Qwen, a different model family, reads each verified quote next to the answer and says whether the quote supports it. It catches a real line read wrongly. |
-| 3. Signed in an enclave | This model, on genuine hardware, produced this reply, and nobody saw the document | In TEE mode, an open model in a GPU trusted execution environment reads the document. The enclave signs `sha256(request):sha256(response)`. The app checks the ECDSA signature recovers to the enclave's address, and that the attestation report, fetched with a fresh nonce, names that address. |
+| 3. Read inside an enclave | The document was read by known, published code on genuine enclave hardware, and nobody else could see it | In TEE mode, GPT-OSS 120B runs inside a hardware enclave. With **Tinfoil** (free to start), the SDK checks the enclave's attestation before connecting: the measured code must match Tinfoil's published release. It then encrypts the request to that enclave's key, and the receipt records the fingerprints and release. With a **signing provider** (RedPill / Phala), the enclave signs `sha256(request):sha256(response)`; the app checks the ECDSA signature recovers to the enclave's address, and that the attestation report (fetched with a fresh nonce) names it. The auditor stays on Groq and only ever sees the short quotes. |
 
 On top of that:
 
@@ -81,7 +81,7 @@ On top of that:
 ## Open-source and open-weight
 
 - GPT-OSS 120B and GPT-OSS 20B read the documents. Qwen 3.8 27B audits.
-- They're served free on Groq by default, by any OpenAI-compatible server (Ollama, vLLM, llama.cpp) with `LLM_BASE_URL`, or inside a TEE with `TEE_BASE_URL`.
+- They're served free on Groq by default, by any OpenAI-compatible server (Ollama, vLLM, llama.cpp) with `LLM_BASE_URL`, or inside a TEE with `TINFOIL_API_KEY` or `TEE_BASE_URL`.
 - All code is MIT.
 - Adding a new kind of document means writing one file in `lib/packs/`: its clauses, its rules and its summary.
 
@@ -94,7 +94,13 @@ npm run dev            # http://localhost:4300
 npm test               # quote checks, packs, loan maths, diff, alarms, receipts, signatures
 ```
 
-TEE mode (an OpenAI-compatible provider that exposes `/signature/{id}` and `/attestation/report`):
+TEE mode, free to start with [Tinfoil](https://tinfoil.sh) (Dashboard → API keys, no card):
+
+```bash
+TINFOIL_API_KEY=...
+```
+
+Or a provider that signs each reply (RedPill / Phala style, `/signature/{id}` and `/attestation/report`):
 
 ```bash
 TEE_BASE_URL=https://api.redpill.ai/v1

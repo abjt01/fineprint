@@ -38,6 +38,10 @@ A receipt is one JSON file that records what an AI said about a document, with e
 
 ## An enclave proof
 
+There are two kinds. A **signed** proof (RedPill / Phala style) carries a per-reply signature. An **attested-channel** proof (`kind: "attested-channel"`, Tinfoil) has no signature. Instead, `attestation` records what the client verified before connecting: `configRepo`, `releaseTag`, `releaseDigest`, `codeFingerprint` and `enclaveFingerprint` (which must be equal), `platform`, `tlsPublicKey`, `hpkePublicKey` (the key the request was encrypted to), `securityVerified`, `verifiedAt` and the result of each verification step.
+
+Fields of a signed proof:
+
 | Field | Meaning |
 | --- | --- |
 | `provider`, `model`, `id` | Where the call went, and the provider's id for it |
