@@ -9,7 +9,8 @@
     "build": "next build",
     "start": "next start",
     "test": "node --test \"test/unit/*.test.js\"",
-    "sample": "node scripts/make-sample.mjs"
+    "sample": "node scripts/make-sample.mjs",
+    "keys": "node scripts/check-keys.mjs"
   },
   "engines": {
     "node": ">=20.9"
