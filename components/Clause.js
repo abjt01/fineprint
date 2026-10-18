@@ -5,14 +5,17 @@ import { findQuote } from "./format";
 
 // One clause: the plain answer, a stamp saying whether its quote was found, the auditor's view,
 // and the page itself with the quoted line marked.
-export default function Clause({ clause: c, pages }) {
+const VERDICT = { supported: "✓ Right", contradicted: "✕ Wrong", not_found: "? Not in the document" };
+
+// `plain` drops the small label (an answer sentence is its own label); a fact-checked claim shows its verdict.
+export default function Clause({ clause: c, pages, plain = false }) {
   const [open, setOpen] = useState(false);
   const [showPage, setShowPage] = useState(false);
   const id = useId();
   const status = c.check.status;
   const stamp =
     status === "verified" ? (c.tries > 1 ? { cls: "fixed", text: `↻ p.${c.check.page}`, tip: "Found on the second try, after the model was shown the page." } : { cls: "verified", text: `✓ p.${c.check.page}`, tip: "Found on this page by plain string search." })
-      : status === "missing" ? { cls: "missing", text: "not in it", tip: "The agreement doesn't seem to say." }
+      : status === "missing" ? { cls: "missing", text: "not in it", tip: "The document doesn't seem to say." }
       : { cls: "check", text: "? check", tip: c.check.why };
 
   const pageText = c.check.page && pages?.[c.check.page - 1];
@@ -22,8 +25,18 @@ export default function Clause({ clause: c, pages }) {
     <li className="clause" id={`clause-${c.key}`}>
       <div className="clause-row">
         <div className="clause-main">
-          <div className="clause-label">{c.label}</div>
-          <div className="clause-answer">{c.found ? c.answer : <span className="muted">Not in this agreement.</span>}</div>
+          {c.verdict ? (
+            <>
+              <span className={`v ${c.verdict}`}>{VERDICT[c.verdict]}</span>
+              <div className="clause-answer">{c.label}</div>
+              {c.verdict === "contradicted" && <div className="correction">The document says: {c.answer}</div>}
+            </>
+          ) : (
+            <>
+              {!plain && <div className="clause-label">{c.label}</div>}
+              <div className="clause-answer">{c.found ? c.answer : <span className="muted">Not in this document.</span>}</div>
+            </>
+          )}
           {c.audit && !c.audit.agrees && <div className="audit-warn">Second model disagrees: {c.audit.note || "read the line yourself."}</div>}
         </div>
         {c.found ? (
@@ -31,7 +44,7 @@ export default function Clause({ clause: c, pages }) {
             {stamp.text}
           </button>
         ) : (
-          <span className={`stamp ${stamp.cls}`}>{stamp.text}</span>
+          !c.verdict && <span className={`stamp ${stamp.cls}`}>{stamp.text}</span>
         )}
       </div>
       {open && (
