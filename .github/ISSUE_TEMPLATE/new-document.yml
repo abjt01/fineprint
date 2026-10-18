@@ -1,0 +1,22 @@
+name: New kind of document
+description: Suggest a pack, like a phone plan, school admission form or car lease
+labels: [new-pack]
+body:
+  - type: input
+    id: kind
+    attributes:
+      label: Kind of document
+    validations:
+      required: true
+  - type: textarea
+    id: clauses
+    attributes:
+      label: Clauses that cost people money
+      description: What should be read out, and which numbers matter.
+    validations:
+      required: true
+  - type: textarea
+    id: rules
+    attributes:
+      label: Red flags
+      description: Rules code could check. Link the law or regulation if there is one.

@@ -1,0 +1,29 @@
+name: Wrong answer
+description: Fineprint read something in a document wrong
+labels: [wrong-answer]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What Fineprint said
+      description: The clause, flag or answer that's wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What the document actually says
+      description: The real line and its page number. Remove personal details.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of document
+      options: [Rent agreement, Job offer, Loan / EMI, Health insurance, Other contract]
+  - type: textarea
+    id: receipt
+    attributes:
+      label: Receipt (optional)
+      description: Paste the receipt JSON, or attach it. Edit out anything private.
+      render: json
